@@ -34,6 +34,29 @@ function buildCategoryCommands(
     return categoryCommands
 }
 
+const MAX_FIELD_VALUE_LENGTH = 1024
+
+function chunkFieldValue(lines: string[]): string[] {
+    const chunks: string[] = []
+    let current = '\u200B'
+
+    for (const line of lines) {
+        const next = current + '\n' + line
+        if (next.length > MAX_FIELD_VALUE_LENGTH) {
+            chunks.push(current)
+            current = '\u200B\n' + line
+        } else {
+            current = next
+        }
+    }
+
+    if (current.length > 0) {
+        chunks.push(current)
+    }
+
+    return chunks
+}
+
 function createHelpEmbed(
     categoryCommands: Record<string, string[]>,
     client: Client,
@@ -60,10 +83,16 @@ function createHelpEmbed(
 
     for (const { key, label } of categories) {
         if (categoryCommands[key].length > 0) {
-            embed.addFields({
-                name: `${label} (${categoryCommands[key].length})`,
-                value: `\u200B\n${categoryCommands[key].join('\n')}`,
-                inline: false,
+            const chunks = chunkFieldValue(categoryCommands[key])
+            chunks.forEach((chunk, index) => {
+                embed.addFields({
+                    name:
+                        index === 0
+                            ? `${label} (${categoryCommands[key].length})`
+                            : `${label} (cont.)`,
+                    value: chunk,
+                    inline: false,
+                })
             })
         }
     }
