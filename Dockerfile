@@ -136,4 +136,4 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD node -e "require('http').get('http://127.0.0.1:3000/api/toggles/global', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))" || exit 1
 
-CMD ["node", "packages/backend/dist/index.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy --config prisma/prisma.config.ts && node packages/backend/dist/index.js"]
