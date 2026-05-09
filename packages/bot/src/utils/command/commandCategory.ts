@@ -40,6 +40,10 @@ export function getCategoryFromFilePath(filePath: string): CommandCategory {
 }
 
 export function getCommandCategory(command: Command): CommandCategory {
+    if (command.category) {
+        return command.category
+    }
+
     if (!command?.data?.name) {
         return 'general'
     }
